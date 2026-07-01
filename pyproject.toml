@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "openeval"
+name = "openeval-core"
 version = "0.1.0"
 description = "Every existing tool evaluates what the agent said. OpenEval evaluates what the agent did."
 readme = "README.md"
