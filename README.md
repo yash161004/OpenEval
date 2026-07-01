@@ -5,8 +5,10 @@ Every existing tool evaluates what the agent said. OpenEval evaluates what the a
 ## Installation
 
 ```bash
-pip install -e .
+pip install openeval-core
 ```
+
+*Note: While the package is installed as `openeval-core`, the CLI command to run it is `openeval`.*
 
 ## Usage
 
