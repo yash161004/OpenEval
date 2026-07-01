@@ -1,10 +1,11 @@
 from typing import Literal, Dict, Any, Optional
 import json
 
-def format_report(results: Dict[str, Any], format_type: Literal["markdown", "json"] = "markdown", *, timestamp: Optional[str] = None) -> str:
-    """Pure function: structured results -> markdown string. No I/O inside."""
-    if format_type != "markdown":
-        return json.dumps(results, indent=2)
+def format_report(results: Dict[str, Any], *, timestamp: Optional[str] = None) -> str:
+    """Pure function: structured results -> markdown string. No I/O inside.
+    Deviation note: Computes aggregate passed_count/pass_rate internally to avoid 
+    cluttering the CLI layer with percentage math, but output remains strictly deterministic.
+    """
 
     run_id = results.get("run_id", "results")
     test_cases = sorted(results.get("test_cases", []), key=lambda x: x.get("task_id", ""))

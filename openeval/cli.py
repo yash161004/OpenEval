@@ -114,8 +114,7 @@ def run(
 
 @app.command()
 def report(
-    input: Path = typer.Option(..., help="Path to results directory"),
-    format: str = typer.Option("markdown", help="Format of the report (markdown or json)")
+    input: Path = typer.Option(..., help="Path to results directory")
 ):
     """
     Generate a report from evaluation results.
@@ -140,8 +139,7 @@ def report(
         "test_cases": test_cases
     }
     
-    # We must explicitly map format_type due to the parameter name in format_report
-    typer.echo(format_report(results, format_type=format))
+    typer.echo(format_report(results))
 
 if __name__ == "__main__":
     app()

@@ -148,7 +148,7 @@ def test_report_command_golden():
     }
     
     from openeval.report import format_report
-    out = format_report(results, format_type="markdown", timestamp="2026-07-01T12:00:00Z")
+    out = format_report(results, timestamp="2026-07-01T12:00:00Z")
     
     expected = """# OpenEval Report — test_run
 Generated at: 2026-07-01T12:00:00Z
