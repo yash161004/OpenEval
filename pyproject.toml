@@ -20,3 +20,6 @@ dev = [
 
 [project.scripts]
 openeval = "openeval.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["openeval"]
