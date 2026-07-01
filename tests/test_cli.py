@@ -111,3 +111,9 @@ def test_suite_malformed_continues(test_data):
         bad_res = json.load(f)
         assert "error" in bad_res
         assert "Failed to parse task files" in bad_res["error"]
+        
+    with open(out_dir / "t1.json") as f:
+        t1_res = json.load(f)
+        assert "task_id" in t1_res
+        assert t1_res["task_id"] == "t1"
+        assert all(m["passed"] for m in t1_res["metrics"].values())

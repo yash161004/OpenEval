@@ -10,9 +10,9 @@ pip install -e .
 
 ## Usage
 
-Run a single test case:
+Run a single test case using the included example:
 ```bash
-openeval run --trace trace.json --testcase test.json
+openeval run --trace examples/simple_agent/trace.json --testcase examples/simple_agent/testcase.json
 ```
 
 Run a test suite:

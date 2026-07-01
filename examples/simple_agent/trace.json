@@ -1,0 +1,24 @@
+{
+  "task_id": "example_simple_agent",
+  "input": "Read configuration from config.yml and print the port number.",
+  "steps": [
+    {
+      "step_id": 1,
+      "type": "tool_call",
+      "content": "I will read the config file.",
+      "tool_name": "read_file",
+      "tool_args": {
+        "filepath": "config.yml"
+      },
+      "tool_result": "port: 8080\nhost: localhost",
+      "timestamp": 12.34
+    }
+  ],
+  "final_output": "The port number is 8080.",
+  "actual_state": {
+    "port": 8080
+  },
+  "metadata": {
+    "agent_version": "1.0.0"
+  }
+}
