@@ -114,17 +114,34 @@ def run(
 
 @app.command()
 def report(
-    input: str = typer.Option(..., help="Path to results directory"),
+    input: Path = typer.Option(..., help="Path to results directory"),
     format: str = typer.Option("markdown", help="Format of the report (markdown or json)")
 ):
     """
     Generate a report from evaluation results.
     """
-    try:
-        format_report({}, format)
-    except NotImplementedError:
-        typer.echo("Error: format_report is not implemented yet.", err=True)
+    if not input.exists() or not input.is_dir():
+        typer.echo(f"Error: Input directory not found: {input}", err=True)
         raise typer.Exit(code=1)
+        
+    run_id = input.name
+    test_cases = []
+    
+    for file_path in input.glob("*.json"):
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                test_cases.append(data)
+        except Exception as e:
+            typer.echo(f"Warning: Failed to load {file_path}: {e}", err=True)
+            
+    results = {
+        "run_id": run_id,
+        "test_cases": test_cases
+    }
+    
+    # We must explicitly map format_type due to the parameter name in format_report
+    typer.echo(format_report(results, format_type=format))
 
 if __name__ == "__main__":
     app()

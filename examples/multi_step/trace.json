@@ -1,0 +1,45 @@
+{
+  "task_id": "example_multi_step_agent",
+  "input": "Migrate the database schema to version 2 by reading the current schema, running the migration query, and committing the transaction.",
+  "steps": [
+    {
+      "step_id": 1,
+      "type": "tool_call",
+      "content": "Checking current schema.",
+      "tool_name": "read_schema",
+      "tool_args": {
+        "db": "production"
+      },
+      "tool_result": "version: 1",
+      "timestamp": 12.34
+    },
+    {
+      "step_id": 2,
+      "type": "tool_call",
+      "content": "Running alter table.",
+      "tool_name": "execute_query",
+      "tool_args": {
+        "query": "ALTER TABLE users ADD COLUMN age INT;"
+      },
+      "tool_result": "Success",
+      "timestamp": 13.55
+    },
+    {
+      "step_id": 3,
+      "type": "tool_call",
+      "content": "Committing changes.",
+      "tool_name": "commit",
+      "tool_args": {},
+      "tool_result": "Transaction committed.",
+      "timestamp": 15.00
+    }
+  ],
+  "final_output": "Database successfully migrated to version 2.",
+  "actual_state": {
+    "version": 2,
+    "status": "migrated"
+  },
+  "metadata": {
+    "agent_version": "1.0.0"
+  }
+}

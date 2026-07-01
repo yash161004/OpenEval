@@ -117,3 +117,63 @@ def test_suite_malformed_continues(test_data):
         assert "task_id" in t1_res
         assert t1_res["task_id"] == "t1"
         assert all(m["passed"] for m in t1_res["metrics"].values())
+
+def test_report_command_golden():
+    results = {
+        "run_id": "test_run",
+        "test_cases": [
+            {
+                "task_id": "t1",
+                "metrics": {
+                    "Tool Selection Accuracy": {"score": 1.0, "passed": True, "details": "ok"},
+                    "Argument Correctness": {"score": 1.0, "passed": True, "details": "ok"},
+                    "Step Efficiency": {"score": 1.0, "passed": True, "details": "ok"},
+                    "Goal Completion Rate": {"score": 1.0, "passed": True, "details": "ok"},
+                }
+            },
+            {
+                "task_id": "t2",
+                "metrics": {
+                    "Tool Selection Accuracy": {"score": 0.5, "passed": False, "details": "Failed tool sel"},
+                    "Argument Correctness": {"score": 1.0, "passed": True, "details": "ok"},
+                    "Step Efficiency": {"score": 0.0, "passed": False, "details": "Failed step eff"},
+                    "Goal Completion Rate": {"score": 1.0, "passed": True, "details": "ok"},
+                }
+            },
+            {
+                "task_id": "t3",
+                "error": "Failed to parse JSON"
+            }
+        ]
+    }
+    
+    from openeval.report import format_report
+    out = format_report(results, format_type="markdown", timestamp="2026-07-01T12:00:00Z")
+    
+    expected = """# OpenEval Report — test_run
+Generated at: 2026-07-01T12:00:00Z
+
+## Summary
+| Total | Passed | Failed | Pass Rate |
+|-------|--------|--------|-----------|
+| 3 | 1 | 2 | 33.3% |
+
+## Results
+| Task ID | Status | Tool Sel | Arg Corr | Step Eff | Goal Comp |
+|---------|--------|----------|----------|----------|-----------|
+| t1 | PASS | 1.00 | 1.00 | 1.00 | 1.00 |
+| t2 | FAIL | 0.50 | 1.00 | 0.00 | 1.00 |
+| t3 | FAIL | - | - | - | - |
+
+## Failures
+
+### t2
+- **Step Efficiency:** 0.00
+  - *Reason:* Failed step eff
+- **Tool Selection Accuracy:** 0.50
+  - *Reason:* Failed tool sel
+
+### t3
+- **Error:** Failed to parse JSON"""
+
+    assert out.strip() == expected.strip()
