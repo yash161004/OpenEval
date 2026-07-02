@@ -118,6 +118,10 @@ def report(
 ):
     """
     Generate a report from evaluation results.
+    
+    Exit Code Contract:
+    - 0: All valid JSON files parsed successfully and report generated.
+    - 1: One or more JSON files failed to load (corrupted/malformed), or invalid arguments/missing directory.
     """
     if not input.exists() or not input.is_dir():
         typer.echo(f"Error: Input directory not found: {input}", err=True)

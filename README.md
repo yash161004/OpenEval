@@ -26,3 +26,5 @@ Generate a report:
 ```bash
 openeval report --input results/ --format markdown
 ```
+
+*Note: The `report` command will exit with a non-zero status code (1) if any JSON file in the input directory is malformed or fails to load, guaranteeing pipeline failures on corrupted evals.*
