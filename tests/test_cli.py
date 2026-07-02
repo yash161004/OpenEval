@@ -177,3 +177,68 @@ Generated at: 2026-07-01T12:00:00Z
 - **Error:** Failed to parse JSON"""
 
     assert out.strip() == expected.strip()
+
+def test_report_cli_valid_results(tmp_path):
+    res_dir = tmp_path / "results"
+    res_dir.mkdir()
+    
+    with open(res_dir / "t1.json", "w", encoding="utf-8") as f:
+        json.dump({
+            "task_id": "t1",
+            "metrics": {
+                "Tool Selection Accuracy": {"score": 1.0, "passed": True, "details": "ok"}
+            }
+        }, f)
+    with open(res_dir / "t2.json", "w", encoding="utf-8") as f:
+        json.dump({
+            "task_id": "t2",
+            "metrics": {
+                "Tool Selection Accuracy": {"score": 0.5, "passed": False, "details": "fail"}
+            }
+        }, f)
+        
+    result = runner.invoke(app, ["report", "--input", str(res_dir)])
+    assert result.exit_code == 0
+    assert "t1" in result.output
+    assert "t2" in result.output
+    assert "| 2 | 1 | 1 | 50.0% |" in result.output
+
+def test_report_cli_malformed_json(tmp_path):
+    res_dir = tmp_path / "results_mal"
+    res_dir.mkdir()
+    
+    with open(res_dir / "t1.json", "w", encoding="utf-8") as f:
+        json.dump({
+            "task_id": "t1",
+            "metrics": {
+                "Tool Selection Accuracy": {"score": 1.0, "passed": True, "details": "ok"}
+            }
+        }, f)
+    with open(res_dir / "bad.json", "w", encoding="utf-8") as f:
+        f.write("{bad json")
+        
+    result = runner.invoke(app, ["report", "--input", str(res_dir)])
+    assert result.exit_code == 1
+    assert "Warning: Failed to load" in result.output
+    assert "bad.json" in result.output
+    assert "t1" in result.output
+    assert "| 1 | 1 | 0 | 100.0% |" in result.output
+
+def test_report_cli_empty_directory(tmp_path):
+    empty_dir = tmp_path / "empty_results"
+    empty_dir.mkdir()
+    
+    result = runner.invoke(app, ["report", "--input", str(empty_dir)])
+    assert result.exit_code == 0
+    assert "| 0 | 0 | 0 | 0.0% |" in result.output
+
+def test_run_cli_invalid_args():
+    result = runner.invoke(app, ["run"])
+    assert result.exit_code == 1
+    assert "Invalid arguments" in result.output
+
+def test_report_cli_nonexistent_dir(tmp_path):
+    bad_dir = tmp_path / "does_not_exist"
+    result = runner.invoke(app, ["report", "--input", str(bad_dir)])
+    assert result.exit_code == 1
+    assert "Input directory not found" in result.output

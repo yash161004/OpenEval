@@ -125,6 +125,7 @@ def report(
         
     run_id = input.name
     test_cases = []
+    has_errors = False
     
     for file_path in input.glob("*.json"):
         try:
@@ -133,6 +134,7 @@ def report(
                 test_cases.append(data)
         except Exception as e:
             typer.echo(f"Warning: Failed to load {file_path}: {e}", err=True)
+            has_errors = True
             
     results = {
         "run_id": run_id,
@@ -140,6 +142,9 @@ def report(
     }
     
     typer.echo(format_report(results))
+    
+    if has_errors:
+        raise typer.Exit(code=1)
 
 if __name__ == "__main__":
     app()
