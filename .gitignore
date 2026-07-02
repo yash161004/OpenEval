@@ -10,3 +10,5 @@ dist/
 .coverage
 htmlcov/
 scratch_tests/
+
+phase_*.md

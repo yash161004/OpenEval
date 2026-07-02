@@ -43,10 +43,9 @@ runs:
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if "error" in data:
-                    print(f"Test case {data.get('task_id', 'unknown')} failed with error: {data['error']}")
-                    total_score += 0.0
-                    total_metrics += 1
-                    continue
+                    print(f"Error: Test case {data.get('task_id', 'unknown')} failed with error: {data['error']}")
+                    print("A hard error occurred during evaluation. Failing the action outright.")
+                    sys.exit(1)
                     
                 for metric in data.get("metrics", {}).values():
                     total_score += metric.get("score", 0.0)
