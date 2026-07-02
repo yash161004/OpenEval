@@ -1,0 +1,33 @@
+{
+  "task_id": "quickstart",
+  "input": "What is the weather in San Francisco?",
+  "steps": [
+    {
+      "step_id": 1,
+      "type": "tool_call",
+      "content": "Calling tool: check_weather",
+      "tool_name": "check_weather",
+      "tool_args": {
+        "input": "San Francisco"
+      },
+      "tool_result": null,
+      "timestamp": 1782994835.288464,
+      "error": null
+    },
+    {
+      "step_id": 2,
+      "type": "tool_result",
+      "content": "Tool execution finished",
+      "tool_name": "check_weather",
+      "tool_args": null,
+      "tool_result": "The weather in San Francisco is sunny.",
+      "timestamp": 1782994835.288964,
+      "error": null
+    }
+  ],
+  "final_output": "The weather in San Francisco is sunny.",
+  "actual_state": {},
+  "metadata": {
+    "run_id": "019f22c6-1756-7920-b62c-5bc6a8b33a99"
+  }
+}

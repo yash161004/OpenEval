@@ -1,0 +1,18 @@
+{
+  "task_id": "test1",
+  "input": "Calculate the length of 'hello'",
+  "expected_tool_calls": [
+    {
+      "tool": "calculate_length",
+      "args": {
+        "input": "hello"
+      }
+    }
+  ],
+  "expected_final_state": {},
+  "expected_output_contains": [
+    "5"
+  ],
+  "max_steps": 1,
+  "timeout_seconds": 10.0
+}

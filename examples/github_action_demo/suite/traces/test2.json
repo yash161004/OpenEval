@@ -1,0 +1,31 @@
+{
+  "task_id": "test2",
+  "input": "Calculate the length of 'hi'",
+  "final_output": "The length is unknown.",
+  "actual_state": {},
+  "metadata": {},
+  "steps": [
+    {
+      "step_id": 1,
+      "type": "tool_call",
+      "content": "Calling tool: wrong_tool",
+      "tool_name": "wrong_tool",
+      "tool_args": {
+        "x": "hi"
+      },
+      "tool_result": null,
+      "timestamp": 100.0,
+      "error": null
+    },
+    {
+      "step_id": 2,
+      "type": "tool_result",
+      "content": "Tool execution finished",
+      "tool_name": "wrong_tool",
+      "tool_args": null,
+      "tool_result": "0",
+      "timestamp": 101.0,
+      "error": null
+    }
+  ]
+}

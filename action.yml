@@ -1,0 +1,70 @@
+name: 'OpenEval CI/CD'
+description: 'Run OpenEval on a suite of agent traces and test cases.'
+inputs:
+  suite:
+    description: 'Path to the test suite directory.'
+    required: true
+  fail-under:
+    description: 'Minimum average metric score (0.0 to 1.0) required to pass.'
+    required: false
+    default: '0.0'
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install OpenEval
+      shell: bash
+      run: pip install openeval-core
+    - name: Run OpenEval
+      shell: bash
+      run: |
+        mkdir -p .openeval_results
+        openeval run --suite "${{ inputs.suite }}" --output .openeval_results || echo "OpenEval CLI returned non-zero exit code, continuing to threshold check..."
+        
+        cat << 'EOF' > evaluate_threshold.py
+        import json
+        import sys
+        from pathlib import Path
+        
+        fail_under = float('${{ inputs.fail-under }}')
+        results_dir = Path('.openeval_results')
+        
+        if not results_dir.exists() or not any(results_dir.iterdir()):
+            print("Error: No results generated. Check if the suite directory is correct.")
+            sys.exit(1)
+            
+        total_score = 0.0
+        total_metrics = 0
+        
+        for file_path in results_dir.glob("*.json"):
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if "error" in data:
+                    print(f"Test case {data.get('task_id', 'unknown')} failed with error: {data['error']}")
+                    total_score += 0.0
+                    total_metrics += 1
+                    continue
+                    
+                for metric in data.get("metrics", {}).values():
+                    total_score += metric.get("score", 0.0)
+                    total_metrics += 1
+                    
+        if total_metrics == 0:
+            print("No metrics evaluated.")
+            sys.exit(1)
+            
+        avg_score = total_score / total_metrics
+        print(f"Overall Average Score: {avg_score:.2f}")
+        print(f"Required Threshold: {fail_under:.2f}")
+        
+        if avg_score < fail_under:
+            print("Eval score is below the fail-under threshold. Failing the action.")
+            sys.exit(1)
+        else:
+            print("Eval score meets or exceeds the threshold. Passed.")
+        EOF
+        
+        python evaluate_threshold.py

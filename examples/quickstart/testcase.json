@@ -1,0 +1,16 @@
+{
+  "task_id": "quickstart",
+  "input": "What is the weather in San Francisco?",
+  "expected_tool_calls": [
+    {
+      "tool": "check_weather",
+      "args": {
+        "input": "San Francisco"
+      }
+    }
+  ],
+  "expected_final_state": {},
+  "expected_output_contains": [],
+  "max_steps": 5,
+  "timeout_seconds": 10.0
+}

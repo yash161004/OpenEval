@@ -1,0 +1,18 @@
+{
+  "task_id": "test2",
+  "input": "Calculate the length of 'hi'",
+  "expected_tool_calls": [
+    {
+      "tool": "calculate_length",
+      "args": {
+        "input": "hi"
+      }
+    }
+  ],
+  "expected_final_state": {},
+  "expected_output_contains": [
+    "2"
+  ],
+  "max_steps": 1,
+  "timeout_seconds": 10.0
+}

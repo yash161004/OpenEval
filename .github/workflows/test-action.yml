@@ -1,0 +1,37 @@
+name: Test OpenEval Action
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  test-passing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Action (Should Pass)
+        uses: ./
+        with:
+          suite: examples/github_action_demo/suite
+          fail-under: '0.0'
+
+  test-failing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Action (Should Fail)
+        id: failing_test
+        continue-on-error: true
+        uses: ./
+        with:
+          suite: examples/github_action_demo/suite
+          fail-under: '0.8'
+          
+      - name: Verify Failure
+        if: steps.failing_test.outcome != 'failure'
+        run: |
+          echo "Expected the action to fail, but it passed!"
+          exit 1

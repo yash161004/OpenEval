@@ -1,0 +1,31 @@
+{
+  "task_id": "test1",
+  "input": "Calculate the length of 'hello'",
+  "final_output": "The length of 'hello' is 5.",
+  "actual_state": {},
+  "metadata": {},
+  "steps": [
+    {
+      "step_id": 1,
+      "type": "tool_call",
+      "content": "Calling tool: calculate_length",
+      "tool_name": "calculate_length",
+      "tool_args": {
+        "input": "hello"
+      },
+      "tool_result": null,
+      "timestamp": 100.0,
+      "error": null
+    },
+    {
+      "step_id": 2,
+      "type": "tool_result",
+      "content": "Tool execution finished",
+      "tool_name": "calculate_length",
+      "tool_args": null,
+      "tool_result": "5",
+      "timestamp": 101.0,
+      "error": null
+    }
+  ]
+}

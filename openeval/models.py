@@ -10,6 +10,7 @@ class TraceStep:
     tool_args: dict | None
     tool_result: str | None
     timestamp: float
+    error: str | None = None
 
 @dataclass
 class AgentTrace:
