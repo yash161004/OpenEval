@@ -37,71 +37,81 @@ openeval report --input results/ --format markdown
 
 ## Quickstart
 
-Get your first evaluation running in under 5 minutes using a real LangChain agent.
+Get your first deterministic evaluation running in under 2 minutes. OpenEval is completely framework-agnostic.
+
+### Tier 1: The Core Engine (No Framework Required)
+
+The core engine requires zero dependencies on external frameworks or LLM SDKs. You just feed it plain Python data.
 
 **1. Install the package**
-*(Note: Because the newest adapters are not yet published to PyPI, please install from source for now. A future update will simplify this to a single `pip install openeval-core` once shipped.)*
 ```bash
-git clone <repo>
-cd <repo>
-pip install -e .
-```
-*(Note: the CLI command is `openeval`)*
-
-**2. Run the Quickstart Agent**
-Run the included example agent. It uses a mock LLM so you don't need any API keys. It will execute a simple tool and save its trace to disk.
-```bash
-python examples/quickstart/quickstart_agent.py
+pip install openeval-core
 ```
 
-**3. Grade the Execution**
-Run the OpenEval CLI to score the agent's behavior against our predefined test case:
-```bash
-openeval run --trace examples/quickstart/trace.json --testcase examples/quickstart/testcase.json
+**2. Score a trace deterministically**
+Create a file named `hello_eval.py` and run it:
+```python
+from openeval.metrics import ToolSelectionAccuracy
+from openeval.models import AgentTrace, EvalTestCase, TraceStep
+
+# 1. Define what the agent was supposed to do
+test_case = EvalTestCase(
+    task_id="quickstart-1",
+    input="Search for the weather in Tokyo",
+    expected_tool_calls=[{"tool": "search", "args": {"query": "weather in Tokyo"}}],
+    expected_final_state={},
+    expected_output_contains=[],
+    max_steps=5,
+    timeout_seconds=10.0
+)
+
+# 2. Provide the raw trace of what the agent actually did
+trace = AgentTrace(
+    task_id="quickstart-1",
+    input="Search for the weather in Tokyo",
+    steps=[
+        TraceStep(
+            step_id=1, 
+            type="tool_call", 
+            content="", 
+            tool_name="search", 
+            tool_args={"query": "weather in Tokyo"}, 
+            tool_result="85 degrees and sunny", 
+            timestamp=0.0
+        )
+    ],
+    final_output="The weather in Tokyo is 85 degrees and sunny.",
+    actual_state={},
+    metadata={}
+)
+
+# 3. Score it deterministically (no LLM required)
+metric = ToolSelectionAccuracy()
+result = metric.score(trace, test_case)
+
+print(f"Metric: {result.metric_name}")
+print(f"Score: {result.score} (Passed: {result.passed})")
+print(f"Details: {result.details}")
 ```
 
 **Expected Output:**
-```json
-{
-  "task_id": "quickstart",
-  "metrics": {
-    "Tool Selection Accuracy": {
-      "metric_name": "Tool Selection Accuracy",
-      "score": 1.0,
-      "passed": true,
-      "details": "Correctly called 1 of 1 expected tools."
-    },
-    "Argument Correctness": {
-      "metric_name": "Argument Correctness",
-      "score": 1.0,
-      "passed": true,
-      "details": "Correctly matched 1 of 1 expected arguments."
-    },
-    "Step Efficiency": {
-      "metric_name": "Step Efficiency",
-      "score": 1.0,
-      "passed": true,
-      "details": "Took 1 steps vs optimal 1 steps."
-    },
-    "Goal Completion Rate": {
-      "metric_name": "Goal Completion Rate",
-      "score": 1.0,
-      "passed": true,
-      "details": "No expected state to match."
-    }
-  }
-}
+```
+Metric: Tool Selection Accuracy
+Score: 1.0 (Passed: True)
+Details: Correctly called 1 of 1 expected tools.
 ```
 
-## Next Steps
-- See the **LangChain Adapter** or **OpenAI Tool Calling** sections below to connect your real app.
-- Check out the **GitHub Action** to add CI/CD gating to your repository.
+### Tier 2: Using OpenEval with LangChain
 
-### LangChain Adapter
+If your traces come from LangChain, you can use our built-in adapter to automatically convert LangChain runs into OpenEval traces.
 
-OpenEval can automatically convert LangChain Agent executions into `AgentTrace` objects.
+**1. Install with LangChain support**
+```bash
+pip install "openeval-core[langchain]"
+```
 
-*LIMITATION: This adapter flattens the run tree. Parent/child tool relationships are not preserved structurally (only call order is retained), and non-tool runs (sub-chains, intermediate LLM calls) between tool boundaries are not captured.*
+**2. Convert and Score**
+*(See the `examples/` directory in our GitHub repository for full, runnable agent scripts using this adapter.)*
 
 ```python
 from openeval.adapters.langchain import from_langchain_run
@@ -111,8 +121,11 @@ with collect_runs() as cb:
     # Run your langchain agent
     agent.invoke({"input": "task input"})
     
-# Convert the run
+# Convert the run to an OpenEval AgentTrace
 trace = from_langchain_run(cb.traced_runs[0])
+
+# Score it exactly like Tier 1
+# metric.score(trace, test_case)
 ```
 
 ### OpenAI Tool Calling
