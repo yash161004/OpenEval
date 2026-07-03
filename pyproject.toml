@@ -16,7 +16,10 @@ dependencies = [
 dev = [
     "pytest",
     "pytest-cov",
+    "openeval-core[langchain,openai]"
 ]
+langchain = ["langchain-core"]
+openai = ["openai"]
 
 [project.scripts]
 openeval = "openeval.cli:app"
