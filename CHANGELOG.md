@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Project Polish:** Added `LICENSE`, `CONTRIBUTING.md`, GitHub issue templates, README badges, and configured Codecov integration.
 
+### Fixed
+- **Dependencies:** Added `langchain-core` and `openai` as proper optional dependencies (`openeval-core[langchain,openai]`). Previously, these were undeclared transitive dependencies, which caused test collection to crash in a clean CI environment and meant the adapter tests were never actually validated during Phase 1.
+
 ## [0.1.1] - 2026-07-02
 
 ### Fixed
