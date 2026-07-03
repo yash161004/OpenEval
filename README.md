@@ -1,5 +1,11 @@
 # OpenEval
 
+[![PyPI - Version](https://img.shields.io/pypi/v/openeval-core.svg)](https://pypi.org/project/openeval-core)
+[![Python - Versions](https://img.shields.io/pypi/pyversions/openeval-core.svg)](https://pypi.org/project/openeval-core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/yash161004/OpenEval/actions/workflows/ci.yml/badge.svg)](https://github.com/yash161004/OpenEval/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/yash161004/OpenEval/branch/main/graph/badge.svg)](https://codecov.io/gh/yash161004/OpenEval)
+
 Every existing tool evaluates what the agent said. OpenEval evaluates what the agent did.
 
 ## Installation
