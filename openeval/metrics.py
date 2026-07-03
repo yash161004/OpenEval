@@ -88,7 +88,9 @@ class ArgumentCorrectness(BaseMetric):
                     correct_args += 1
 
         if called_expected_tools == 0:
-            return MetricResult(self.name, 0.0, False, "No expected tools were called; nothing to evaluate.")
+            expected_count = len(expected_tool_calls)
+            details = f"0 of {expected_count} expected tool calls occurred; argument correctness cannot be assessed — treated as failed."
+            return MetricResult(self.name, 0.0, False, details)
 
         if total_args_evaluated == 0:
             return MetricResult(self.name, 1.0, True, "Called tools had no expected arguments to evaluate.")
