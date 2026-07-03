@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **Dependencies:** Added `langchain-core` and `openai` as proper optional dependencies (`openeval-core[langchain,openai]`). Previously, these were undeclared transitive dependencies, which caused test collection to crash in a clean CI environment and meant the adapter tests were never actually validated during Phase 1.
 - **Metrics:** Clarified the `ArgumentCorrectness` failure message when no expected tools are called to explicitly state it is treated as a failure.
+- **CI:** Fixed an issue where the `publish.yml` workflow was not triggering automatically on tag pushes because it was listening for `release: [published]` instead of `push: tags`.
 
 ## [0.1.1] - 2026-07-02
 
