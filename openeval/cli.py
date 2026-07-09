@@ -164,6 +164,10 @@ def report(
     avg_score = (total_score / total_metrics) if total_metrics > 0 else 0.0
     
     if fail_under is not None:
+        if total_metrics == 0:
+            typer.echo("Error: No metrics evaluated.", err=True)
+            raise typer.Exit(code=1)
+            
         typer.echo(f"\nOverall Average Score: {avg_score:.2f}")
         typer.echo(f"Required Threshold: {fail_under:.2f}")
         if avg_score < fail_under:
