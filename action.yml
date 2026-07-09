@@ -17,7 +17,7 @@ runs:
         python-version: '3.11'
     - name: Install OpenEval
       shell: bash
-      run: pip install openeval-core
+      run: pip install "${{ github.action_path }}"
     - name: Run OpenEval
       shell: bash
       run: |
