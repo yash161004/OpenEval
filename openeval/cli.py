@@ -114,14 +114,15 @@ def run(
 
 @app.command()
 def report(
-    input: Path = typer.Option(..., help="Path to results directory")
+    input: Path = typer.Option(..., help="Path to results directory"),
+    fail_under: Optional[float] = typer.Option(None, "--fail-under", help="Minimum average metric score (0.0 to 1.0) required to pass.")
 ):
     """
     Generate a report from evaluation results.
     
     Exit Code Contract:
-    - 0: All valid JSON files parsed successfully and report generated.
-    - 1: One or more JSON files failed to load (corrupted/malformed), or invalid arguments/missing directory.
+    - 0: All valid JSON files parsed successfully, report generated, and score meets threshold (if provided).
+    - 1: One or more JSON files failed to load, invalid arguments, or score below threshold.
     """
     if not input.exists() or not input.is_dir():
         typer.echo(f"Error: Input directory not found: {input}", err=True)
@@ -131,11 +132,23 @@ def report(
     test_cases = []
     has_errors = False
     
+    total_score = 0.0
+    total_metrics = 0
+    
     for file_path in input.glob("*.json"):
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 test_cases.append(data)
+                
+                # Check for test execution errors (hard failures)
+                if "error" in data:
+                    has_errors = True
+                
+                # Aggregate scores
+                for metric in data.get("metrics", {}).values():
+                    total_score += metric.get("score", 0.0)
+                    total_metrics += 1
         except Exception as e:
             typer.echo(f"Warning: Failed to load {file_path}: {e}", err=True)
             has_errors = True
@@ -146,6 +159,16 @@ def report(
     }
     
     typer.echo(format_report(results))
+    
+    # Calculate average score
+    avg_score = (total_score / total_metrics) if total_metrics > 0 else 0.0
+    
+    if fail_under is not None:
+        typer.echo(f"\nOverall Average Score: {avg_score:.2f}")
+        typer.echo(f"Required Threshold: {fail_under:.2f}")
+        if avg_score < fail_under:
+            typer.echo("Eval score is below the fail-under threshold.", err=True)
+            raise typer.Exit(code=1)
     
     if has_errors:
         raise typer.Exit(code=1)
