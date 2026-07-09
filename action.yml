@@ -17,53 +17,24 @@ runs:
         python-version: '3.11'
     - name: Install OpenEval
       shell: bash
-      run: pip install openeval-core
+      run: pip install "${{ github.action_path }}"
     - name: Run OpenEval
       shell: bash
       run: |
         mkdir -p .openeval_results
         openeval run --suite "${{ inputs.suite }}" --output .openeval_results || echo "OpenEval CLI returned non-zero exit code, continuing to threshold check..."
         
-        cat << 'EOF' > evaluate_threshold.py
-        import json
-        import sys
-        from pathlib import Path
+        echo "Generating report and evaluating threshold..."
+        # Capture exit code and output to a file
+        set +e
+        openeval report --input .openeval_results --fail-under "${{ inputs.fail-under }}" > openeval_report.md
+        EXIT_CODE=$?
+        set -e
         
-        fail_under = float('${{ inputs.fail-under }}')
-        results_dir = Path('.openeval_results')
+        # Write to step summary
+        cat openeval_report.md >> $GITHUB_STEP_SUMMARY
         
-        if not results_dir.exists() or not any(results_dir.iterdir()):
-            print("Error: No results generated. Check if the suite directory is correct.")
-            sys.exit(1)
-            
-        total_score = 0.0
-        total_metrics = 0
-        
-        for file_path in results_dir.glob("*.json"):
-            with open(file_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                if "error" in data:
-                    print(f"Error: Test case {data.get('task_id', 'unknown')} failed with error: {data['error']}")
-                    print("A hard error occurred during evaluation. Failing the action outright.")
-                    sys.exit(1)
-                    
-                for metric in data.get("metrics", {}).values():
-                    total_score += metric.get("score", 0.0)
-                    total_metrics += 1
-                    
-        if total_metrics == 0:
-            print("No metrics evaluated.")
-            sys.exit(1)
-            
-        avg_score = total_score / total_metrics
-        print(f"Overall Average Score: {avg_score:.2f}")
-        print(f"Required Threshold: {fail_under:.2f}")
-        
-        if avg_score < fail_under:
-            print("Eval score is below the fail-under threshold. Failing the action.")
-            sys.exit(1)
-        else:
-            print("Eval score meets or exceeds the threshold. Passed.")
-        EOF
-        
-        python evaluate_threshold.py
+        if [ $EXIT_CODE -ne 0 ]; then
+            echo "OpenEval failed (either due to errors or score below threshold). Check the step summary for details."
+            exit $EXIT_CODE
+        fi
